@@ -1,62 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
-
-import { fetchDailyData } from '../../api';
+import React from 'react';
+import { Line } from 'react-chartjs-2';
+import _ from 'lodash';
 
 import styles from './Chart.module.css';
 
-const Chart = ({ data: { confirmed, recovered, deaths }, country }) => {
-  const [dailyData, setDailyData] = useState({});
-
-  useEffect(() => {
-    const fetchMyAPI = async () => {
-      const initialDailyData = await fetchDailyData();
-
-      setDailyData(initialDailyData);
-    };
-
-    fetchMyAPI();
-  }, []);
-
-  const barChart = (
-    confirmed ? (
-      <Bar
-        data={{
-          labels: ['Infected', 'Recovered', 'Deaths'],
-          datasets: [
-            {
-              label: 'People',
-              backgroundColor: ['rgba(0, 0, 255, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(255, 0, 0, 0.5)'],
-              data: [confirmed.value, recovered.value, deaths.value],
-            },
-          ],
-        }}
-        options={{
-          legend: { display: false },
-          title: { display: true, text: `Current state in ${country}` },
-        }}
-      />
-    ) : null
-  );
-
+const Chart = (countrys) => {
+  const datasets = [];
+  if (!_.isEmpty(countrys.data)) {
+    for (const country in countrys.data) {
+      datasets.push({
+        data: countrys.data[country].map((data) => data.Deaths),
+        label: country,
+        borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+        fill: false,
+      });
+    }
+  }
   const lineChart = (
-    dailyData[0] ? (
+    !_.isEmpty(countrys.data) ? (
       <Line
         data={{
-          labels: dailyData.map(({ date }) => date),
-          datasets: [{
-            data: dailyData.map((data) => data.confirmed),
-            label: 'Infected',
-            borderColor: '#3333ff',
-            fill: true,
-          }, {
-            data: dailyData.map((data) => data.deaths),
-            label: 'Deaths',
-            borderColor: 'red',
-            backgroundColor: 'rgba(255, 0, 0, 0.5)',
-            fill: true,
-          },
-          ],
+          labels: countrys.data.brasil.map((data) => new Date(data.Date).toLocaleDateString('pt-br')),
+          datasets,
         }}
       />
     ) : null
@@ -64,7 +29,7 @@ const Chart = ({ data: { confirmed, recovered, deaths }, country }) => {
 
   return (
     <div className={styles.container}>
-      {country ? barChart : lineChart}
+      {lineChart}
     </div>
   );
 };

@@ -22,6 +22,7 @@ module.exports = {
     'react',
   ],
   rules: { 
+    "linebreak-style": ["error", process.env.NODE_ENV === 'prod' ? "unix" : "windows"],
     "import/prefer-default-export": 0,
     "max-len": [
       2,
